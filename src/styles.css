@@ -1,0 +1,48 @@
+﻿*{box-sizing:border-box}
+html,body,#root{margin:0;width:100%;height:100%;overflow:hidden;background:#b9ccd0;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+canvas{display:block;touch-action:none;outline:none}
+button{font:inherit}
+.solace-ui{position:fixed;inset:0;pointer-events:none;z-index:10;color:#fff7e7;text-shadow:0 1px 14px #15251b66}
+.wordmark{position:absolute;left:3.5vw;top:4.3vh;display:flex;flex-direction:column;gap:9px}
+.wordmark>span{font-size:22px;font-weight:350;letter-spacing:.24em}
+.wordmark small{font-size:8px;letter-spacing:.28em;opacity:.8}
+.journey{position:absolute;right:3.5vw;top:5.2vh;display:flex;align-items:center;gap:25px}
+.journey span{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.08em;opacity:.58}
+.journey .current{opacity:1}
+.journey i{width:4px;height:4px;border:1px solid currentColor;border-radius:50%}
+.journey .current i{background:#f5dfb5;box-shadow:0 0 10px #ffe4a3}
+.location{position:absolute;left:3.5vw;bottom:9vh}
+.eyebrow{font-size:9px;letter-spacing:.23em;opacity:.74}
+.location h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:42px;letter-spacing:-.03em;margin:10px 0 5px}
+.location p{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:15px;opacity:.85;margin:0}
+.elevation{display:flex;gap:16px;font-size:8px;letter-spacing:.12em;margin-top:18px;opacity:.68}
+.enter-panel{position:absolute;right:3.5vw;bottom:10vh;text-align:left;width:235px;pointer-events:auto}
+.enter-panel p{font-family:Georgia,serif;font-size:17px;line-height:1.6;margin:0 0 17px}
+.enter-panel>button{width:100%;border:1px solid #f6e5cba3;background:#f3e7d8e8;color:#344b3b;padding:14px 18px;cursor:pointer;font-size:11px;letter-spacing:.08em;text-align:left;box-shadow:0 3px 22px #25302014}
+.enter-panel>button span{float:right;font-size:16px}
+.enter-panel small{display:block;font-size:9px;margin-top:11px;opacity:.7}
+button:hover{filter:brightness(1.08)}
+button:focus-visible{outline:2px solid #f6d39b;outline-offset:5px}
+.controls{position:absolute;bottom:3.3vh;left:50%;transform:translateX(-50%);display:flex;gap:22px;white-space:nowrap;font-size:9px;opacity:.85}
+.controls kbd{font-family:inherit;font-size:8px;border:1px solid #fff5dd4d;border-radius:3px;padding:3px 5px;margin-right:5px}
+.map-toggle{position:absolute;right:3.5vw;bottom:3.1vh;pointer-events:auto;color:inherit;background:transparent;border:0;cursor:pointer;font-size:20px}
+.map-toggle span{font-size:8px;letter-spacing:.16em;vertical-align:middle;margin-left:6px}
+.solace-vignette{position:fixed;inset:0;pointer-events:none;z-index:9;background:linear-gradient(0deg,#14251a80,transparent 25%,transparent 82%,#273d3a20),radial-gradient(ellipse at center,transparent 55%,#22281720 100%)}
+.trail-map{position:absolute;right:3.5vw;top:12vh;width:295px;padding:20px 20px 12px;background:#253b32ee;border:1px solid #d6e0c744;pointer-events:auto;box-shadow:0 20px 60px #14201540}
+.map-heading{font-size:8px;letter-spacing:.2em}
+.map-heading button{float:right;border:0;background:none;color:inherit;cursor:pointer;font-size:18px;line-height:10px}
+.trail-map svg{width:100%;height:auto}
+.map-route{stroke:#e5ca8e;stroke-width:1.7;fill:none}
+.map-river{stroke:#8cb8be;stroke-width:7;fill:none;opacity:.24}
+.trail-map circle{fill:#ead3a3}
+.trail-map .map-you{fill:#fff;stroke:#fff;stroke-width:3;stroke-opacity:.25}
+.trail-map text{fill:#efead7;font-size:10px;font-family:Georgia,serif}
+.trail-map .north{font:9px sans-serif;opacity:.5}
+.trail-map p{font-size:9px;opacity:.6;letter-spacing:.08em}
+.solace-loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:25px;background:#263c33;color:#fdf3e2;z-index:100}
+.solace-loading .mark{letter-spacing:.5em;font-weight:300;font-size:1.4rem}
+.bar-track{width:180px;height:1px;background:#fdf3e22e;overflow:hidden}
+.bar-fill{height:100%;background:#e4c38b;transition:width .2s}
+@media(max-width:700px){.journey{gap:10px;top:13vh;left:3.5vw;right:auto}.journey span{font-size:9px}.controls{gap:10px;font-size:8px;bottom:2.5vh}.controls span:nth-child(3){display:none}.location h1{font-size:32px}.enter-panel{width:185px}.enter-panel p{font-size:14px}.elevation{flex-direction:column;gap:6px}.map-toggle{bottom:8vh}.map-toggle span{display:none}.trail-map{top:19vh;width:270px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+

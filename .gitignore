@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Codex / browser review artifacts
+artifacts/
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Generated Vite config output
+vite.config.js
+vite.config.d.ts
+
+# Archive / backup files
+*.zip
+*.rar
+*.7z
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/

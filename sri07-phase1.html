@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SRI-07 // RED TEAM RECON — Phase 1</title>
+<style>
+  :root{
+    --near-black:#08080a;
+    --charcoal:#111114;
+    --panel:#151518;
+    --line:#2a2a2f;
+    --crimson:#b3222d;
+    --crimson-dim:#6e1620;
+    --off-white:#e9e7e1;
+    --dim:#8a8a8f;
+    --mono:'IBM Plex Mono','Courier New',monospace;
+    --sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--near-black);font-family:var(--sans);}
+  #canvas-wrap{position:fixed;inset:0;}
+  canvas{display:block;}
+
+  /* ---- start overlay ---- */
+  #start-overlay{
+    position:fixed;inset:0;z-index:50;
+    background:radial-gradient(ellipse at center, #0c0c0f 0%, #050506 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--off-white);text-align:center;cursor:pointer;
+  }
+  #start-overlay h1{
+    font-family:var(--mono);font-size:clamp(22px,4vw,34px);letter-spacing:3px;
+    color:var(--off-white);font-weight:600;
+  }
+  #start-overlay h1 span{color:var(--crimson);}
+  #start-overlay p.sub{
+    margin-top:10px;font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--dim);
+  }
+  #start-overlay .prompt{
+    margin-top:48px;font-family:var(--mono);font-size:13px;letter-spacing:2px;color:var(--crimson);
+    border:1px solid var(--crimson-dim);padding:12px 28px;
+  }
+  #start-overlay .controls-hint{
+    margin-top:40px;font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.9;letter-spacing:1px;
+  }
+  #start-overlay .controls-hint b{color:var(--off-white);}
+
+  /* ---- HUD ---- */
+  #hud{position:fixed;inset:0;pointer-events:none;z-index:20;font-family:var(--mono);color:var(--off-white);}
+  #hud .corner{position:absolute;font-size:11px;letter-spacing:1px;color:var(--dim);}
+  #hud .top-left{top:18px;left:18px;}
+  #hud .top-left .op{color:var(--off-white);font-size:13px;letter-spacing:2px;}
+  #hud .top-left .op span{color:var(--crimson);}
+  #hud .top-right{top:18px;right:18px;text-align:right;}
+  #skip-link{
+    pointer-events:all;cursor:pointer;font-size:11px;letter-spacing:1px;color:var(--dim);
+    border:1px solid var(--line);padding:6px 10px;transition:color .15s, border-color .15s;
+  }
+  #skip-link:hover{color:var(--crimson);border-color:var(--crimson-dim);}
+
+  #crosshair{
+    position:absolute;top:50%;left:50%;width:6px;height:6px;
+    transform:translate(-50%,-50%);border:1px solid rgba(233,231,225,0.35);border-radius:50%;
+  }
+
+  #proximity-prompt{
+    position:absolute;bottom:110px;left:50%;transform:translateX(-50%);
+    text-align:center;opacity:0;transition:opacity .25s ease;
+  }
+  #proximity-prompt.show{opacity:1;}
+  #proximity-prompt .label{font-size:10px;letter-spacing:3px;color:var(--crimson);}
+  #proximity-prompt .name{font-size:15px;letter-spacing:2px;color:var(--off-white);margin-top:4px;}
+  #proximity-prompt .key{
+    margin-top:10px;font-size:11px;letter-spacing:2px;color:var(--dim);
+    border-top:1px solid var(--line);padding-top:8px;
+  }
+  #proximity-prompt .key b{
+    color:var(--near-black);background:var(--crimson);padding:1px 7px;margin-right:6px;border-radius:2px;
+  }
+
+  #bottom-bar{
+    position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+    font-size:10px;letter-spacing:1.5px;color:var(--dim);display:flex;gap:22px;
+  }
+  #bottom-bar b{color:var(--off-white);}
+
+  /* ---- portfolio panel ---- */
+  #panel-overlay{
+    position:fixed;inset:0;z-index:30;display:none;
+    background:rgba(5,5,6,0.55);
+    align-items:center;justify-content:center;
+  }
+  #panel-overlay.open{display:flex;}
+  #panel{
+    width:min(420px,88vw);background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--crimson);color:var(--off-white);
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  #panel .panel-head{
+    padding:16px 20px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  #panel .panel-head .title{font-family:var(--mono);font-size:14px;letter-spacing:2px;}
+  #panel .panel-head .meta{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:1px;}
+  #panel .panel-body{padding:22px 20px;}
+  #panel .role{font-family:var(--mono);font-size:10px;color:var(--crimson);letter-spacing:2px;}
+  #panel .name{font-size:20px;margin-top:6px;font-weight:600;}
+  #panel .lead{font-size:13px;color:var(--dim);margin-top:4px;}
+  #panel .desc{font-size:13px;line-height:1.7;color:#c9c7c1;margin-top:16px;}
+  #panel ul{list-style:none;margin-top:12px;}
+  #panel li{font-size:12.5px;color:#c9c7c1;padding:4px 0 4px 14px;position:relative;}
+  #panel li::before{content:'—';position:absolute;left:0;color:var(--crimson-dim);}
+  #panel .status-row{
+    margin-top:18px;padding-top:14px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--dim);
+  }
+  #panel .status-row b{color:var(--crimson);}
+  #panel .group-label{
+    font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--dim);
+    margin-top:16px;padding-top:12px;border-top:1px solid var(--line);
+  }
+  #panel .group-label:first-of-type{border-top:none;padding-top:0;margin-top:14px;}
+  #panel .panel-foot{padding:14px 20px;border-top:1px solid var(--line);text-align:right;}
+  #panel button{
+    font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--off-white);
+    background:transparent;border:1px solid var(--line);padding:8px 18px;cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  #panel button:hover{border-color:var(--crimson);color:var(--crimson);}
+
+  /* ---- static fallback ---- */
+  #fallback{
+    position:fixed;inset:0;z-index:40;display:none;background:var(--near-black);
+    color:var(--off-white);overflow-y:auto;
+  }
+  #fallback.open{display:block;}
+  #fallback .wrap{max-width:640px;margin:0 auto;padding:60px 24px 100px;}
+  #fallback .back{
+    font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--dim);
+    cursor:pointer;border:1px solid var(--line);display:inline-block;padding:7px 14px;
+  }
+  #fallback .back:hover{color:var(--crimson);border-color:var(--crimson-dim);}
+  #fallback .role{font-family:var(--mono);font-size:11px;color:var(--crimson);letter-spacing:2px;margin-top:34px;}
+  #fallback h1{font-size:28px;margin-top:8px;}
+  #fallback p.intro{font-size:14px;line-height:1.8;color:#c9c7c1;margin-top:14px;max-width:52ch;}
+  #fallback section{margin-top:38px;}
+  #fallback h2{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:8px;}
+  #fallback .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  #fallback .chip{font-size:12.5px;color:#c9c7c1;border:1px solid var(--line);padding:8px 10px;}
+  #fallback .placeholder{font-size:13px;color:var(--dim);margin-top:14px;font-style:italic;}
+
+  @media (max-width:520px){
+    #fallback .grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas-wrap"></div>
+
+<div id="start-overlay">
+  <h1>SRI-07 <span>// RED TEAM RECON</span></h1>
+  <p class="sub">AN INTERACTIVE OFFENSIVE-SECURITY PORTFOLIO</p>
+  <div class="prompt">CLICK TO ENTER FACILITY</div>
+  <div class="controls-hint">
+    <b>WASD</b> MOVE &nbsp;&nbsp; <b>MOUSE</b> LOOK &nbsp;&nbsp; <b>SHIFT</b> BOOST &nbsp;&nbsp; <b>E</b> INTERACT
+  </div>
+</div>
+
+<div id="hud">
+  <div class="corner top-left">
+    <div class="op">OPERATOR <span>SRI-07</span></div>
+    <div style="margin-top:2px;">MISSION: PORTFOLIO RECON</div>
+  </div>
+  <div class="corner top-right">
+    <div id="skip-link">SKIP 3D EXPERIENCE</div>
+  </div>
+  <div id="crosshair"></div>
+  <div id="proximity-prompt">
+    <div class="label">NODE DETECTED</div>
+    <div class="name" id="node-name">COMMAND HQ</div>
+    <div class="key"><b>E</b> ACCESS</div>
+  </div>
+  <div id="bottom-bar">
+    <div>AREA: <b id="area-label">OPEN FIELD</b></div>
+    <div>STATUS: <b>STANDBY</b></div>
+  </div>
+</div>
+
+<div id="panel-overlay">
+  <div id="panel">
+    <div class="panel-head">
+      <div class="title" id="panel-title">COMMAND HQ</div>
+      <div class="meta" id="panel-meta">NODE // 01</div>
+    </div>
+    <div class="panel-body">
+      <div id="panel-dynamic"></div>
+    </div>
+    <div class="panel-foot">
+      <button id="close-panel">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<div id="fallback">
+  <div class="wrap">
+    <div class="back" id="back-to-3d">← RETURN TO 3D EXPERIENCE</div>
+    <div class="role">OPERATOR PROFILE</div>
+    <h1>Sriram Bharath</h1>
+    <p class="intro">
+      Aspiring ethical hacker and Computer Science student, currently
+      building practical skills in offensive security, web security,
+      networking, Linux and software development.
+    </p>
+    <section>
+      <h2>SKILLS</h2>
+      <div class="grid">
+        <div class="chip">Networking &amp; TCP/IP</div>
+        <div class="chip">Linux &amp; Bash</div>
+        <div class="chip">Web Security (XSS, SQLi)</div>
+        <div class="chip">Nmap &amp; Burp Suite</div>
+        <div class="chip">React / Next.js</div>
+        <div class="chip">Python &amp; Java</div>
+      </div>
+    </section>
+    <section>
+      <h2>PROJECTS</h2>
+      <div class="grid" style="grid-template-columns:1fr;">
+        <div class="chip">FarmLink — AI-powered agricultural market intelligence</div>
+        <div class="chip">RootNote — offline-first cybersecurity knowledge base</div>
+        <div class="chip">TermNote — terminal-oriented productivity notes</div>
+        <div class="chip">AI Assistant — experimental, status: research / building</div>
+      </div>
+    </section>
+    <section>
+      <h2>CONTACT</h2>
+      <p class="placeholder">Contact channels will be added in a later build phase.</p>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     CONTENT — kept separate from scene/interaction logic
+  ========================================================= */
+  const BUILDINGS = [
+    { id: 'command-hq', name: 'COMMAND HQ', position: { x: 6,  z: -10 } },
+    { id: 'recon-lab',  name: 'RECON LAB',  position: { x: -10, z: -10 } },
+    { id: 'rnd-center', name: 'R&D CENTER', position: { x: -2,  z: -24 } }
+  ];
+
+  const CONTENT = {
+    'command-hq': {
+      meta: 'NODE // 01',
+      role: 'OPERATOR PROFILE',
+      heading: 'Sriram Bharath',
+      lead: 'Aspiring Ethical Hacker · Computer Science Student',
+      desc: 'Building practical skills across offensive security, web security, networking and software development. This portfolio is a work in progress, same as the skillset behind it.',
+      groups: [
+        { items: ['Web Security', 'Networking & Linux', 'Offensive Security fundamentals', 'Full-stack development'] }
+      ],
+      status: 'ONGOING'
+    },
+    'recon-lab': {
+      meta: 'NODE // 02',
+      role: 'ATTACK SURFACE MAPPED',
+      heading: 'Skills',
+      lead: 'Accessing operator skill inventory',
+      desc: 'Levels shown honestly — some areas are practical experience, others are still being built.',
+      groups: [
+        { label: 'NETWORK SECURITY', items: ['Networking fundamentals — PRACTICAL', 'TCP/IP & DNS — PRACTICAL', 'Nmap & enumeration — PRACTICAL'] },
+        { label: 'WEB SECURITY', items: ['HTTP & JavaScript — PRACTICAL', 'SQL Injection & XSS — LEARNING', 'Burp Suite — LEARNING'] },
+        { label: 'SYSTEMS', items: ['Linux & Bash — PRACTICAL', 'Git — FAMILIAR'] },
+        { label: 'DEVELOPMENT', items: ['React / Next.js — BUILDING', 'Python & Java — FAMILIAR'] }
+      ],
+      status: 'ONGOING'
+    },
+    'rnd-center': {
+      meta: 'NODE // 03',
+      role: 'PROJECT ARCHIVE FOUND',
+      heading: 'Projects',
+      lead: '4 projects on record',
+      desc: 'Status is shown as-is — some of these are still in progress, not finished products.',
+      groups: [
+        { label: 'FARMLINK', items: ['AI-powered agricultural market intelligence', 'React · Next.js · FastAPI · PostgreSQL · Gemini · CrewAI'] },
+        { label: 'ROOTNOTE', items: ['Offline-first cybersecurity knowledge base', 'Electron · React · Markdown'] },
+        { label: 'TERMNOTE', items: ['Terminal-oriented productivity notes app'] },
+        { label: 'AI ASSISTANT', items: ['Experimental personal AI assistant', 'STATUS: RESEARCH / BUILDING'] }
+      ],
+      status: 'ONGOING'
+    },
+    'comms': {
+      meta: 'NODE // 04',
+      role: 'COMMUNICATION NODE',
+      heading: 'Contact',
+      lead: 'Establish secure channel',
+      desc: 'Channels below are placeholders — real links go in whenever they\u2019re ready.',
+      groups: [
+        { items: ['GITHUB — link pending', 'LINKEDIN — link pending', 'EMAIL — address pending'] }
+      ],
+      status: 'CHANNELS PENDING'
+    }
+  };
+
+  // one interactive node per building, beacon offset toward the courtyard (+Z, facing spawn)
+  const NODES = BUILDINGS.map(b => ({
+    id: b.id,
+    name: b.name,
+    position: { x: b.position.x, z: b.position.z + 5.5 },
+    radius: 4.5
+  }));
+
+  // Comms is a small terminal, not a full facility building — closer to spawn, easy first find
+  const COMMS = { id: 'comms', name: 'COMMS', position: { x: 14, z: -2 } };
+  NODES.push({ id: COMMS.id, name: COMMS.name, position: { x: COMMS.position.x, z: COMMS.position.z }, radius: 3.5 });
+
+  /* =========================================================
+     SCENE SETUP
+  ========================================================= */
+  const wrap = document.getElementById('canvas-wrap');
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x08080a, 0.02);
+
+  const camera = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.1, 500);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = false;
+  wrap.appendChild(renderer.domElement);
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  /* ---- lighting: dark industrial facility, red is accent-only ---- */
+  scene.add(new THREE.AmbientLight(0x1c1d20, 1.3));
+
+  // neutral cool key light — very subtle, reads geometry without warming the scene
+  const key = new THREE.DirectionalLight(0x8f97a3, 0.42);
+  key.position.set(20, 30, 10);
+  scene.add(key);
+
+  // restrained neutral overhead "sodium/industrial" fill so surfaces stay readable
+  const overheadFill = new THREE.HemisphereLight(0x5a5e64, 0x0d0d0f, 0.85);
+  scene.add(overheadFill);
+
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+
+  // red kept small and local — status/navigation accent only, not an environment light
+  const redRim = new THREE.PointLight(0xb3222d, 1.0, 14, 2);
+  redRim.position.set(6, 5, -9);
+  scene.add(redRim);
+
+  /* ---- ground ---- */
+  const groundMat = new THREE.MeshStandardMaterial({ color: 0x0c0c0e, roughness: 0.95, metalness: 0.05 });
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), groundMat);
+  ground.rotation.x = -Math.PI/2;
+  scene.add(ground);
+
+  // faint grid for spatial readability
+  const grid = new THREE.GridHelper(120, 60, 0x2a2a2f, 0x1a1a1d);
+  grid.position.y = 0.01;
+  scene.add(grid);
+
+  /* ---- boundary walls (invisible-ish, low panels) ---- */
+  const BOUNDS = 34;
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x111114, roughness: 0.9, transparent:true, opacity:0.5 });
+  function makeWall(w,h,d,x,z){
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), wallMat);
+    m.position.set(x, h/2, z);
+    scene.add(m);
+  }
+  makeWall(BOUNDS*2, 4, 0.5, 0, -BOUNDS);
+  makeWall(BOUNDS*2, 4, 0.5, 0, BOUNDS);
+  makeWall(0.5, 4, BOUNDS*2, -BOUNDS, 0);
+  makeWall(0.5, 4, BOUNDS*2, BOUNDS, 0);
+
+  /* ---- building factory — same layered design, reusable per facility node ---- */
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x141417, roughness: 0.82, metalness: 0.22 });
+  const panelMat = new THREE.MeshStandardMaterial({ color: 0x1b1b1f, roughness: 0.6, metalness: 0.35 });
+  const glassMat = new THREE.MeshStandardMaterial({ color: 0x191a1e, roughness: 0.25, metalness: 0.7, emissive: 0x151316, emissiveIntensity:0.5 });
+  const darkRecess = new THREE.MeshStandardMaterial({ color: 0x08080a, roughness: 0.9 });
+  const crimsonEmissive = new THREE.MeshStandardMaterial({ color: 0xb3222d, emissive: 0xb3222d, emissiveIntensity: 1.3 });
+  const signageMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2e, emissive: 0xdedad2, emissiveIntensity: 0.35 });
+
+  function createBuilding(cfg){
+    const building = new THREE.Group();
+
+    const plinth = new THREE.Mesh(new THREE.BoxGeometry(9.4, 0.5, 9.4), panelMat);
+    plinth.position.y = 0.25;
+    building.add(plinth);
+
+    // main core — collision AABB is measured against this 8x8 footprint
+    const core = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 8), bodyMat);
+    core.position.y = 3.5;
+    building.add(core);
+
+    const band = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.4, 8.2), glassMat);
+    band.position.y = 6.1;
+    building.add(band);
+
+    // entrance recess always faces +Z (the courtyard/spawn side)
+    const entranceRecess = new THREE.Mesh(new THREE.BoxGeometry(2.6, 3, 0.3), darkRecess);
+    entranceRecess.position.set(0, 1.6, 4.02);
+    building.add(entranceRecess);
+
+    [-1.9, 1.9].forEach(x => {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5.4, 0.4), panelMat);
+      pillar.position.set(x, 2.9, 4.1);
+      building.add(pillar);
+    });
+
+    const overhang = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.2, 1.1), panelMat);
+    overhang.position.set(0, 3.35, 4.4);
+    building.add(overhang);
+
+    [[-2.9,2.2],[2.9,2.2],[-2.9,4.4],[2.9,4.4]].forEach(([x,y]) => {
+      const p = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 0.08), panelMat);
+      p.position.set(x, y, 4.06);
+      building.add(p);
+    });
+
+    const signage = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.22, 0.08), signageMat);
+    signage.position.set(0, 5.6, 4.06);
+    building.add(signage);
+
+    for(let i=-1;i<=1;i+=2){
+      const strip = new THREE.Mesh(new THREE.BoxGeometry(0.12, 5, 0.12), crimsonEmissive);
+      strip.position.set(i*4.05, 3.2, 3.9);
+      building.add(strip);
+    }
+
+    building.position.set(cfg.position.x, 0, cfg.position.z);
+    scene.add(building);
+
+    // dim neutral fill light near the entrance, for readability — not red
+    const fill = new THREE.PointLight(0x9aa0a8, 0.5, 11, 2);
+    fill.position.set(cfg.position.x, 3, cfg.position.z + 6);
+    scene.add(fill);
+
+    // illuminated ground ring beneath the beacon — landmark visible from a distance
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(1.1, 1.3, 24),
+      new THREE.MeshStandardMaterial({ color: 0xb3222d, emissive: 0xb3222d, emissiveIntensity: 0.9, transparent:true, opacity:0.55, side: THREE.DoubleSide })
+    );
+    ring.rotation.x = -Math.PI/2;
+    ring.position.set(cfg.position.x, 0.03, cfg.position.z + 5.5);
+    scene.add(ring);
+
+    return { x: cfg.position.x, z: cfg.position.z, halfX: 4, halfZ: 4 };
+  }
+
+  const BUILDING_COLLIDERS = BUILDINGS.map(b => createBuilding(b));
+
+  /* ---- interactive node beacons — one per building, in front of its entrance ---- */
+  const beaconMat = new THREE.MeshStandardMaterial({ color: 0xb3222d, emissive: 0xb3222d, emissiveIntensity: 2 });
+  const beaconTops = [];
+  NODES.forEach(n => {
+    const nodeGroup = new THREE.Group();
+    const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.4, 10), beaconMat);
+    beacon.position.y = 0.7;
+    nodeGroup.add(beacon);
+    const beaconLight = new THREE.PointLight(0xb3222d, 1.6, 8, 2);
+    beaconLight.position.y = 1.6;
+    nodeGroup.add(beaconLight);
+    const beaconTop = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), beaconMat);
+    beaconTop.position.y = 1.5;
+    nodeGroup.add(beaconTop);
+    beaconTops.push(beaconTop);
+
+    nodeGroup.position.set(n.position.x, 0, n.position.z);
+    scene.add(nodeGroup);
+    n.object = nodeGroup;
+  });
+
+  /* ---- a few simple environment props, kept clear of all three building footprints ---- */
+  const propMat = new THREE.MeshStandardMaterial({ color: 0x0f0f12, roughness: 0.9 });
+  function crate(x,z,s){
+    const c = new THREE.Mesh(new THREE.BoxGeometry(s,s,s), propMat);
+    c.position.set(x, s/2, z);
+    scene.add(c);
+  }
+  crate(18, 8, 1.4);
+  crate(20, 4, 1.0);
+  crate(-20, 6, 1.8);
+
+  // industrial support pillars — sparse, for spatial readability, not decoration
+  const pillarMat = new THREE.MeshStandardMaterial({ color: 0x121214, roughness: 0.85, metalness: 0.15 });
+  [[0, 20], [20, -2], [-24, 2]].forEach(([x,z]) => {
+    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 5.5, 8), pillarMat);
+    pillar.position.set(x, 2.75, z);
+    scene.add(pillar);
+  });
+
+  // a single hanging cable run near Command HQ — cheap detail, kept clear of the facade
+  const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 4.2, 6), pillarMat);
+  cable.position.set(13, 3.2, -10);
+  cable.rotation.z = 0.5;
+  scene.add(cable);
+
+  /* =========================================================
+     DRONE — built from primitives
+  ========================================================= */
+  const drone = new THREE.Group();
+
+  const droneBodyMat = new THREE.MeshStandardMaterial({ color: 0x1c1c20, roughness: 0.48, metalness: 0.55 });
+  const droneCanopyMat = new THREE.MeshStandardMaterial({ color: 0x141417, roughness: 0.35, metalness: 0.5 });
+  const droneAccentMat = new THREE.MeshStandardMaterial({ color: 0xb3222d, emissive: 0xb3222d, emissiveIntensity: 1.6 });
+  const rotorMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.6, metalness: 0.3 });
+
+  // NOTE on orientation: the drone group's local -Z axis is the true forward
+  // (movement) direction once drone.rotation.y = yaw is applied, since local
+  // +Z maps to world (sin(yaw), 0, cos(yaw)) which is the *opposite* of the
+  // forward vector used by the movement controller. All "front" features
+  // below sit at negative Z; all "rear" features sit at positive Z.
+
+  // hexagonal chassis — main body
+  const droneCore = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.52, 0.2, 6), droneBodyMat);
+  drone.add(droneCore);
+
+  // low domed canopy on top, slightly forward-biased
+  const canopy = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.34, 0.16, 6), droneCanopyMat);
+  canopy.position.set(0, 0.17, -0.05);
+  drone.add(canopy);
+
+  // front sensor pod — a mounting block with the lens embedded in its face,
+  // not a bare floating sphere
+  const sensorPod = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.22), droneCanopyMat);
+  sensorPod.position.set(0, -0.08, -0.42);
+  drone.add(sensorPod);
+  const lens = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 12), new THREE.MeshStandardMaterial({color:0x0c0c0e, emissive:0xb3222d, emissiveIntensity:1.1}));
+  lens.position.set(0, -0.08, -0.53);
+  drone.add(lens);
+
+  // rear stabilizer fin with a small recessed indicator light (not a loose sphere)
+  const fin = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.16), droneBodyMat);
+  fin.position.set(0, 0.14, 0.42);
+  drone.add(fin);
+  const tailIndicator = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.02), new THREE.MeshStandardMaterial({color:0x2a2a2e, emissive:0xcfcdc6, emissiveIntensity:0.7}));
+  tailIndicator.position.set(0.03, 0.14, 0.5);
+  drone.add(tailIndicator);
+
+  // slim skid legs
+  [-0.3, 0.3].forEach(x => {
+    const skid = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.46, 6), rotorMat);
+    skid.rotation.z = Math.PI/2;
+    skid.position.set(x*0.7, -0.16, 0);
+    drone.add(skid);
+    const foot = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), rotorMat);
+    foot.position.set(x*0.7 - (x>0?0.22:-0.22), -0.16, 0);
+    drone.add(foot);
+  });
+
+  const armPositions = [
+    { x: 0.72, z: 0.72 }, { x: -0.72, z: 0.72 },
+    { x: 0.72, z: -0.72 }, { x: -0.72, z: -0.72 }
+  ];
+  const rotors = [];
+  armPositions.forEach(p => {
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.9), droneBodyMat);
+    arm.position.set(p.x*0.55, -0.02, p.z*0.55);
+    arm.lookAt(new THREE.Vector3(p.x, -0.02, p.z).multiplyScalar(2));
+    drone.add(arm);
+
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,0.1,10), droneAccentMat);
+    hub.position.set(p.x, 0.03, p.z);
+    drone.add(hub);
+
+    const rotorGroup = new THREE.Group();
+    const bladeA = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.02, 0.055), rotorMat);
+    const bladeB = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.02, 0.5), rotorMat);
+    rotorGroup.add(bladeA, bladeB);
+    rotorGroup.position.set(p.x, 0.1, p.z);
+    drone.add(rotorGroup);
+    rotors.push(rotorGroup);
+  });
+
+  const droneLight = new THREE.PointLight(0xb3222d, 0.8, 5, 2);
+  droneLight.position.set(0, -0.05, -0.5);
+  drone.add(droneLight);
+
+  drone.position.set(0, 1.6, 8);
+  scene.add(drone);
+
+  /* =========================================================
+     INPUT
+  ========================================================= */
+  const keys = { w:false, a:false, s:false, d:false, shift:false };
+  let pointerLocked = false;
+  let yaw = Math.PI; // facing toward the building initially
+  let pitch = -0.12;
+
+  document.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if (k==='w') keys.w = true;
+    if (k==='a') keys.a = true;
+    if (k==='s') keys.s = true;
+    if (k==='d') keys.d = true;
+    if (k==='shift') keys.shift = true;
+    if (k==='e') tryInteract();
+    if (k==='escape' && panelOpen) closePanel();
+  });
+  document.addEventListener('keyup', (e) => {
+    const k = e.key.toLowerCase();
+    if (k==='w') keys.w = false;
+    if (k==='a') keys.a = false;
+    if (k==='s') keys.s = false;
+    if (k==='d') keys.d = false;
+    if (k==='shift') keys.shift = false;
+  });
+
+  const canvas = renderer.domElement;
+  canvas.addEventListener('click', () => {
+    if (!panelOpen) canvas.requestPointerLock();
+  });
+  document.addEventListener('pointerlockchange', () => {
+    pointerLocked = (document.pointerLockElement === canvas);
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!pointerLocked) return;
+    yaw -= e.movementX * 0.0022;
+    pitch -= e.movementY * 0.0015;
+    pitch = Math.max(-0.5, Math.min(0.3, pitch));
+  });
+
+  /* =========================================================
+     START OVERLAY
+  ========================================================= */
+  const startOverlay = document.getElementById('start-overlay');
+  startOverlay.addEventListener('click', () => {
+    startOverlay.style.display = 'none';
+    canvas.requestPointerLock();
+  });
+
+  /* =========================================================
+     MOVEMENT — smoothed velocity, yaw-relative
+  ========================================================= */
+  const velocity = new THREE.Vector3();
+  const BASE_MAX_SPEED = 7.5;
+  const BOOST_MAX_SPEED = 13;
+  const ACCEL = 18;
+  const DAMP = 9;
+  const HOVER_Y = 1.6;
+
+  function updateDrone(dt){
+    const forward = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw)).multiplyScalar(-1);
+    const right = new THREE.Vector3(-forward.z, 0, forward.x);
+
+    const input = new THREE.Vector3();
+    if (keys.w) input.add(forward);
+    if (keys.s) input.sub(forward);
+    if (keys.d) input.add(right);
+    if (keys.a) input.sub(right);
+    if (input.lengthSq() > 0) input.normalize();
+
+    const maxSpeed = keys.shift ? BOOST_MAX_SPEED : BASE_MAX_SPEED;
+    const targetVel = input.multiplyScalar(maxSpeed);
+
+    // smooth acceleration/deceleration (weighty, not floaty)
+    velocity.x += (targetVel.x - velocity.x) * Math.min(1, ACCEL*dt);
+    velocity.z += (targetVel.z - velocity.z) * Math.min(1, ACCEL*dt);
+    if (input.lengthSq() === 0){
+      velocity.x -= velocity.x * Math.min(1, DAMP*dt);
+      velocity.z -= velocity.z * Math.min(1, DAMP*dt);
+    }
+
+    // axis-separated building collision — move one axis at a time so the
+    // drone slides along the wall instead of stopping dead on contact
+    const DRONE_RADIUS = 0.65;
+    function hitsBuilding(x, z){
+      return BUILDING_COLLIDERS.some(c =>
+        Math.abs(x - c.x) < (c.halfX + DRONE_RADIUS) &&
+        Math.abs(z - c.z) < (c.halfZ + DRONE_RADIUS)
+      );
+    }
+    const nextX = drone.position.x + velocity.x * dt;
+    if (!hitsBuilding(nextX, drone.position.z)) drone.position.x = nextX; else velocity.x = 0;
+    const nextZ = drone.position.z + velocity.z * dt;
+    if (!hitsBuilding(drone.position.x, nextZ)) drone.position.z = nextZ; else velocity.z = 0;
+
+    // boundary clamp
+    const margin = 2.5;
+    drone.position.x = Math.max(-BOUNDS+margin, Math.min(BOUNDS-margin, drone.position.x));
+    drone.position.z = Math.max(-BOUNDS+margin, Math.min(BOUNDS-margin, drone.position.z));
+
+    // hover bob + guaranteed above-ground clamp
+    const bob = Math.sin(performance.now()*0.0022)*0.08;
+    drone.position.y = HOVER_Y + bob;
+    if (drone.position.y < 0.6) drone.position.y = 0.6;
+
+    // orient drone toward facing direction with slight bank into turns
+    drone.rotation.y = yaw;
+    const speed = Math.sqrt(velocity.x*velocity.x + velocity.z*velocity.z);
+    const lateral = velocity.x*right.x + velocity.z*right.z;
+    drone.rotation.z = THREE.MathUtils.lerp(drone.rotation.z, -lateral*0.05, 0.12);
+    drone.rotation.x = THREE.MathUtils.lerp(drone.rotation.x, -(forward.x*velocity.x + forward.z*velocity.z)*0.02, 0.12);
+
+    rotors.forEach(r => r.rotation.y += dt * (10 + speed*4));
+
+    return speed;
+  }
+
+  /* =========================================================
+     CAMERA — smooth third-person follow
+  ========================================================= */
+  const camOffset = new THREE.Vector3();
+  const camTargetPos = new THREE.Vector3();
+  const lookTarget = new THREE.Vector3();
+
+  function updateCamera(dt){
+    const dist = 6.2, height = 2.6;
+    camOffset.set(Math.sin(yaw)*dist, height, Math.cos(yaw)*dist);
+    camTargetPos.copy(drone.position).add(camOffset);
+    camTargetPos.y += pitch * 3;
+
+    camera.position.lerp(camTargetPos, Math.min(1, 6*dt));
+    lookTarget.copy(drone.position).setY(drone.position.y + 0.4 - pitch*2);
+    camera.lookAt(lookTarget);
+  }
+
+  /* =========================================================
+     PROXIMITY + INTERACTION
+  ========================================================= */
+  const promptEl = document.getElementById('proximity-prompt');
+  const nodeNameEl = document.getElementById('node-name');
+  const areaLabelEl = document.getElementById('area-label');
+  let nearNode = null;
+  let panelOpen = false;
+
+  function updateProximity(){
+    let closest = null, closestDist = Infinity;
+    NODES.forEach(n => {
+      const dx = drone.position.x - n.position.x;
+      const dz = drone.position.z - n.position.z;
+      const d = Math.sqrt(dx*dx + dz*dz);
+      if (d < n.radius && d < closestDist){ closest = n; closestDist = d; }
+    });
+    nearNode = closest;
+    if (nearNode){
+      promptEl.classList.add('show');
+      nodeNameEl.textContent = nearNode.name;
+      areaLabelEl.textContent = nearNode.name;
+    } else {
+      promptEl.classList.remove('show');
+      areaLabelEl.textContent = 'OPEN FIELD';
+    }
+  }
+
+  function tryInteract(){
+    if (nearNode && !panelOpen) openPanel();
+  }
+
+  const panelOverlay = document.getElementById('panel-overlay');
+  const panelTitleEl = document.getElementById('panel-title');
+  const panelMetaEl = document.getElementById('panel-meta');
+  const panelDynamicEl = document.getElementById('panel-dynamic');
+
+  function renderPanel(node){
+    const c = CONTENT[node.id];
+    panelTitleEl.textContent = node.name;
+    panelMetaEl.textContent = c.meta;
+    panelDynamicEl.innerHTML = `
+      <div class="role">${c.role}</div>
+      <div class="name">${c.heading}</div>
+      <div class="lead">${c.lead}</div>
+      <div class="desc">${c.desc}</div>
+      ${c.groups.map(g => `
+        ${g.label ? `<div class="group-label">${g.label}</div>` : ''}
+        <ul>${g.items.map(i => `<li>${i}</li>`).join('')}</ul>
+      `).join('')}
+      <div class="status-row"><span>MISSION STATUS</span><b>${c.status}</b></div>
+    `;
+  }
+
+  function openPanel(){
+    panelOpen = true;
+    renderPanel(nearNode);
+    panelOverlay.classList.add('open');
+    if (document.pointerLockElement) document.exitPointerLock();
+  }
+  function closePanel(){
+    panelOpen = false;
+    panelOverlay.classList.remove('open');
+    canvas.requestPointerLock();
+  }
+  document.getElementById('close-panel').addEventListener('click', closePanel);
+  panelOverlay.addEventListener('click', (e) => { if (e.target === panelOverlay) closePanel(); });
+
+  /* =========================================================
+     SKIP 3D / FALLBACK
+  ========================================================= */
+  const fallback = document.getElementById('fallback');
+  document.getElementById('skip-link').addEventListener('click', () => {
+    fallback.classList.add('open');
+    if (document.pointerLockElement) document.exitPointerLock();
+  });
+  document.getElementById('back-to-3d').addEventListener('click', () => {
+    fallback.classList.remove('open');
+  });
+
+  /* =========================================================
+     ANIMATE
+  ========================================================= */
+  let last = performance.now();
+  function animate(){
+    requestAnimationFrame(animate);
+    const now = performance.now();
+    const dt = Math.min(0.05, (now-last)/1000);
+    last = now;
+
+    updateDrone(dt);
+    updateCamera(dt);
+    updateProximity();
+
+    beaconTops.forEach(t => { t.position.y = 1.5 + Math.sin(now*0.004)*0.05; });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
