@@ -1,191 +1,352 @@
-# SOLACE
+<div align="center">
+
+# 🌄 SOLACE
 
 ### A Journey Through Sri
 
-> **What if a portfolio wasn't a webpage — but a world you could walk through?**
+**What if a portfolio wasn't a webpage — but a world you could walk through?**
 
-<p align="center">
-  <img src="docs/images/solace-origin.jpeg" alt="SOLACE — Origin Valley" width="100%">
-</p>
+<br>
 
-**SOLACE** is a cinematic, interactive 3D personal portfolio where my work, curiosity, story, and ambitions are represented as places inside one continuous explorable world.
+<img src="docs/images/solace-origin.jpeg" alt="SOLACE — A Journey Through Sri" width="100%">
 
-Instead of scrolling through sections, you travel through them.
+<br><br>
 
 **ORIGIN → CRAFT → CURIOSITY → HORIZON**
 
+<br>
+
+![React](https://img.shields.io/badge/React-18-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-3D-000000?logo=threedotjs&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![Status](https://img.shields.io/badge/Status-In%20Development-orange)
+
+</div>
+
 ---
 
-## 🌄 The World
+## ✦ The Idea
 
-![SOLACE — Origin](docs/images/solace-origin.jpg)
+**SOLACE** is a cinematic, interactive 3D personal portfolio where my work, curiosity, story and ambitions exist inside one continuous explorable world.
 
-SOLACE is built as a peaceful mountain valley filled with forests, rivers, trails, distant peaks, landmarks and environmental storytelling.
+Instead of scrolling through:
 
-The goal is not to make a traditional portfolio with a 3D background.
+**About → Projects → Skills → Goals**
 
-The portfolio **is the world**.
+you physically travel through them.
 
-Every region represents a different part of my journey:
+The portfolio is not displayed **on top of** a 3D world.
+
+> **The portfolio is the world.**
+
+---
+
+## 🗺️ The Journey
+
+SOLACE is structured around four symbolic regions.
 
 ### 🌱 ORIGIN
-Where I started.
 
-A quiet beginning — open valleys, familiar paths and the first view of the journey ahead.
+**Where I started.**
+
+A peaceful beginning surrounded by open valleys, familiar paths and distant destinations.
+
+Origin introduces the player to the world while giving the first glimpse of everything that lies ahead.
+
+---
 
 ### 🔨 CRAFT
-Things I've built.
 
-A place representing projects, experimentation and the process of turning ideas into something real.
+**Things I've built.**
+
+A settlement representing projects, experimentation and the process of turning ideas into something real.
+
+This is where my work will become part of the environment instead of appearing as ordinary project cards.
+
+---
 
 ### 🌲 CURIOSITY
-Things I'm learning and exploring.
 
-Deeper forests, branching paths and places that reward exploration.
+**Things I'm learning and exploring.**
 
-![SOLACE — Curiosity](docs/images/solace-curiosity.jpg)
+Forests, trails and branching paths representing curiosity, cybersecurity, learning and experimentation.
+
+Some things are placed directly on the journey.
+
+Others are meant to be discovered.
+
+---
 
 ### 🏔️ HORIZON
-Where I'm going.
 
-The distant destination visible throughout the journey — representing future ambitions and everything still ahead.
+**Where I'm going.**
 
----
+The distant destination visible throughout much of the world.
 
-## 🎮 This Is Not a Normal Portfolio
+Horizon represents future ambitions, unfinished goals and everything still ahead.
 
-SOLACE is designed around exploration rather than navigation menus.
-
-The player can:
-
-- walk through a continuous 3D world
-- follow trails across mountains and forests
-- discover portfolio content naturally
-- see future destinations from earlier parts of the journey
-- experience the portfolio as a story rather than a list of projects
-
-The world is intentionally built with strong foreground, midground and background composition so that distant landmarks create a constant sense of direction and curiosity.
+The journey eventually leads toward the mountain, its summit and a lone tree overlooking the world travelled below.
 
 ---
 
-## ✨ Current State
+## 🎮 Not a Traditional Portfolio
 
-SOLACE is actively being developed.
+SOLACE is designed around **exploration rather than menus**.
 
-The current build already includes:
+The player will be able to:
 
-- a large continuous mountain-valley world
-- long-distance traversal
-- layered procedural terrain
+- explore one continuous 3D environment
+- travel through different regions of my journey
+- discover projects naturally inside the world
+- follow trails through forests, rivers and mountains
+- encounter environmental storytelling
+- see distant destinations before reaching them
+- experience my portfolio as a journey rather than a list
+
+A major design goal is simple:
+
+> *The player should constantly be able to look somewhere in the distance and think — I want to go there.*
+
+---
+
+## 🌍 The World
+
+The current world already includes:
+
+- large continuous terrain
+- more than **900 metres of traversal**
+- layered mountain ranges
 - forests and vegetation
-- rivers and water
-- bridges and paths
-- distant mountain scenery
-- atmospheric lighting and haze
-- an animated third-person character
+- rivers and water systems
+- bridges and trails
+- distant scenic landmarks
+- atmospheric haze
+- golden-hour lighting
+- an animated third-person explorer
 - a custom chase camera
 - region-aware presentation
-- development traversal validation
+- traversal validation tooling
 
-The current world route spans roughly **900+ metres of traversal**.
+The terrain was designed around **foreground, midground and background composition** so the world feels large without simply becoming empty.
 
-Detailed portfolio interactions, settlements, the railway journey, final waterfall system, environmental storytelling and the full Horizon experience are still being built.
-
----
-
-## 🧭 Design Philosophy
-
-SOLACE follows one core rule:
-
-> **The portfolio is a world.**
-
-The experience should feel:
-
-- peaceful
-- cinematic
-- handcrafted
-- exploratory
-- personal
-
-Not like a tech demo.
-
-Not like four disconnected levels.
-
-And definitely not like a normal portfolio with Three.js placed behind some HTML.
-
-The player should constantly be able to look into the distance and think:
-
-> *I want to go there.*
+Locations are connected through geography rather than being divided into separate levels.
 
 ---
 
-## 🛠️ Built With
+## 🎨 Visual Direction
 
-- **React**
-- **TypeScript**
-- **Three.js**
-- **React Three Fiber**
-- **Vite**
+SOLACE aims for a world that feels:
 
-3D assets are primarily built from selected **Kenney** asset kits, combined with custom terrain generation, world composition, environmental systems and procedural placement.
+**peaceful • cinematic • handcrafted • warm • exploratory • personal**
 
----
+The visual direction combines:
 
-## 🤖 Building SOLACE With AI
+- stylized low-poly environments
+- lush vegetation
+- layered mountain silhouettes
+- long-distance vistas
+- rivers and waterfalls
+- warm sunlight
+- cool atmospheric depth
+- subtle environmental storytelling
 
-A major part of this project is also an experiment in a new way of building software.
+The goal is not photorealism.
 
-SOLACE is being developed with **GPT-6 Astra Ultra** through the **Codex CLI**, using ChatGPT Plus.
-
-Rather than treating the model like a code generator and specifying every implementation detail, I describe the creative goal, constraints and intended experience in normal language.
-
-Astra then works directly inside the codebase: inspecting the existing architecture, implementing systems, running builds, validating traversal and iterating on the world.
-
-One of the biggest lessons from building SOLACE has been surprisingly simple:
-
-> **Good AI collaboration isn't necessarily about writing enormous prompts.  
-> Sometimes it's about explaining what you actually want clearly and letting the model think.**
-
-The first major world-foundation pass was built from a human-style description of the world I wanted — not a giant implementation specification.
-
-The result became the foundation you see here.
+The goal is to create a place that feels memorable.
 
 ---
 
-## 🗺️ Development Roadmap
+## 🛠️ Technology
 
-### World Foundation ✅
-Continuous terrain, traversal, mountains, forests, water, paths, atmosphere and overall world composition.
+SOLACE is built with:
 
-### World & Region Development 🚧
-Origin, Craft, Curiosity, railway journey, waterfall, settlements and Horizon.
+| Technology | Purpose |
+|---|---|
+| **React** | Application structure |
+| **TypeScript** | Type-safe development |
+| **Three.js** | 3D rendering |
+| **React Three Fiber** | React-based Three.js architecture |
+| **Vite** | Development and production build system |
+| **GLTF / GLB** | Runtime 3D assets |
 
-### Portfolio Layer
-Projects, personal story, learning journey and interactive environmental content.
-
-### Cinematic Pass
-Lighting progression, environmental animation, particles, improved water, train movement, ambience and sound.
-
-### Final Production Pass
-Performance optimisation, loading experience, accessibility, responsive fallback, deployment polish and browser/device testing.
+Environmental assets primarily use selected **Kenney** asset kits combined with custom procedural terrain, placement systems, materials and world-generation logic.
 
 ---
 
-## 🖼️ Screenshots
+# 🤖 Built With GPT-6 Astra Ultra
 
-### Origin
+SOLACE is also an experiment in what becomes possible when a person and a powerful coding agent work together differently.
 
-![SOLACE Origin Valley](docs/images/solace-origin.jpg)
+A large part of SOLACE is being developed using:
 
-### Curiosity
+> **GPT-6 Astra Ultra through the Codex CLI**
 
-![SOLACE Curiosity Valley](docs/images/solace-curiosity.jpg)
+with **ChatGPT Plus** used for planning, design discussions, debugging, direction and iteration.
 
-More environments will be added as the journey grows.
+But the interesting part isn't simply that AI wrote code.
+
+It's **how the collaboration works**.
 
 ---
 
-## 🚀 Running Locally
+## Human vision. Agent implementation.
+
+Instead of trying to specify every function, file and implementation detail, I describe:
+
+- what the world should feel like
+- what the player should experience
+- what should remain unchanged
+- what the next major goal is
+- what visual problems need solving
+
+Astra works directly inside the repository, inspecting the existing architecture and deciding how to implement that vision.
+
+It can:
+
+- inspect the codebase
+- modify existing systems
+- create new world systems
+- run TypeScript checks
+- build the application
+- validate traversal
+- inspect implementation problems
+- iterate on the environment
+
+I then play the result, inspect it visually and decide what comes next.
+
+---
+
+## One lesson changed the way I build with AI
+
+Early on, I tried extremely detailed prompts describing almost every implementation decision.
+
+Eventually I stopped.
+
+Instead, I explained the goal like I would explain it to another developer.
+
+That produced one of the biggest improvements in the entire project.
+
+> **Good AI collaboration isn't always about writing the longest prompt.**
+
+> **Sometimes it's about explaining the vision clearly and giving the model enough room to think.**
+
+The current SOLACE world foundation came from exactly that approach.
+
+---
+
+## 🧠 Who Did What?
+
+SOLACE is not a one-click generated website.
+
+### Sriram
+
+- original concept
+- world direction
+- project philosophy
+- visual references
+- interaction ideas
+- region design
+- testing
+- playtesting
+- iteration decisions
+- final creative direction
+
+### GPT-6 Astra Ultra
+
+- implementation
+- codebase analysis
+- world-system development
+- procedural systems
+- technical iteration
+- build validation
+- traversal validation
+- engineering assistance
+
+### ChatGPT
+
+- architecture discussions
+- creative planning
+- troubleshooting
+- iteration strategy
+- prompt development
+- technical explanation
+- project direction support
+
+SOLACE is ultimately the result of **human direction amplified by AI engineering tools**.
+
+---
+
+## 🧭 Development Roadmap
+
+### ✅ Phase 1 — World Foundation
+
+- continuous terrain
+- mountains
+- traversal route
+- forests
+- water
+- paths
+- atmosphere
+- player character
+- camera
+- world composition
+
+---
+
+### 🚧 Phase 2 — The Journey
+
+Building the actual world regions:
+
+- Origin
+- Craft settlement
+- Curiosity forest
+- river system
+- major waterfall
+- railway route
+- stone viaduct
+- train journey
+- Horizon mountain
+- summit viewpoint
+- lone tree
+
+---
+
+### ◻ Phase 3 — Portfolio Layer
+
+The world becomes my actual portfolio.
+
+Projects, experiences, learning and personal story will be integrated directly into locations and environmental interactions.
+
+---
+
+### ◻ Phase 4 — Cinematic Pass
+
+- environmental animation
+- moving train
+- improved water
+- waterfall effects
+- mist and particles
+- ambience
+- sound design
+- lighting progression
+- cinematic transitions
+
+---
+
+### ◻ Phase 5 — Production
+
+- performance optimisation
+- loading experience
+- browser testing
+- responsive experience
+- accessibility
+- deployment polish
+- final presentation
+
+---
+
+## 🚀 Run SOLACE Locally
 
 Clone the repository:
 
@@ -219,39 +380,82 @@ npm run build
 
 ---
 
-## 🎯 Why I Built This
+## 💭 Why SOLACE?
 
-I've seen plenty of portfolios that show who someone is through cards, sections and timelines.
+I've seen plenty of portfolios that describe someone through cards, timelines and sections.
 
-I wanted to try something different.
+I wanted something different.
 
 I wanted someone visiting my portfolio to **experience the journey**.
 
 To start somewhere small.
 
-To see distant places.
+To notice something in the distance.
 
-To explore.
+To walk toward it.
 
 To discover what I've built.
 
-And eventually reach the horizon.
+To understand what I'm curious about.
+
+And eventually...
+
+to reach the horizon.
 
 That idea became **SOLACE**.
 
 ---
 
-## 👨‍💻 Created By
+## 🙏 Credits
 
-**Sriram Bharath**
+### AI Engineering
 
-Computer Science student • Builder • Cybersecurity enthusiast
+**GPT-6 Astra Ultra — OpenAI**
 
-GitHub: [@SriramBharath-7](https://github.com/SriramBharath-7)
+Used through the **Codex CLI** as the primary coding agent helping implement the SOLACE world and its technical systems.
+
+**ChatGPT — OpenAI**
+
+Used throughout the project for planning, debugging, architecture discussions, creative direction and iteration.
+
+### 3D Assets
+
+Selected environment and character assets are based on asset packs by **Kenney**.
+
+Huge appreciation to the creators of open and accessible game-development resources that make experimentation like SOLACE possible.
 
 ---
 
-<p align="center">
-  <strong>SOLACE — A Journey Through Sri</strong><br>
-  <em>The portfolio is a world.</em>
-</p>
+## 👨‍💻 Creator
+
+### Sriram Bharath
+
+Computer Science student  
+Builder  
+Cybersecurity enthusiast
+
+[GitHub @SriramBharath-7](https://github.com/SriramBharath-7)
+
+---
+
+<div align="center">
+
+## SOLACE
+
+### *A Journey Through Sri*
+
+<br>
+
+**The portfolio is a world.**
+
+<br>
+
+`ORIGIN` → `CRAFT` → `CURIOSITY` → `HORIZON`
+
+<br>
+
+---
+
+*Still exploring.*
+
+</div>
