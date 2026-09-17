@@ -4,6 +4,10 @@
 
 > **What if a portfolio wasn't a webpage — but a world you could walk through?**
 
+<p align="center">
+  <img src="docs/images/solace-origin.jpeg" alt="SOLACE — Origin Valley" width="100%">
+</p>
+
 **SOLACE** is a cinematic, interactive 3D personal portfolio where my work, curiosity, story, and ambitions are represented as places inside one continuous explorable world.
 
 Instead of scrolling through sections, you travel through them.
