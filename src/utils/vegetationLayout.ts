@@ -2,6 +2,7 @@ import { mulberry32 } from './noise'
 import { distanceToPath, samplePath } from './path'
 import { getTerrainHeight, getTerrainSlope, riverX, riverLevel, riverHalfWidth } from './terrain'
 import { WORLD } from '../constants'
+import { reservedPlanting } from './regionLayout'
 
 export interface Placement {
   position: [number, number, number]
@@ -49,6 +50,7 @@ export function buildVegetationLayout(seed = 1337): Record<LayoutKey, Placement[
   const treeCells = new Map<string, [number, number][]>()
 
   function suitable(x: number, z: number, pathClearance: number, maxSlope = 0.78) {
+    if (reservedPlanting(x,z)) return false
     if (Math.abs(x) > WORLD.halfWidth - 16 || z < WORLD.endZ + 20 || z > WORLD.startZ - 8) return false
     if (distanceToPath(x, z) < pathClearance) return false
     if (Math.hypot(x + 52, z + 8) < 23) return false
@@ -63,6 +65,7 @@ export function buildVegetationLayout(seed = 1337): Record<LayoutKey, Placement[
   }
 
   function addTree(key: LayoutKey, x: number, z: number, scale: number) {
+    if (reservedPlanting(x,z,true)) return
     if (!suitable(x, z, 5.5)) return
     // A broad opening from the first overlook toward the far mountain.
     if (z > 107 && z < 232 && Math.abs(x - (-94 + (220 - z) * 0.355)) < 19) return

@@ -7,6 +7,7 @@ import { playerState } from '../utils/playerState'
 import { getGroundHeight, isWalkable } from '../utils/terrain'
 import { gameplayInput } from '../hooks/useMouseOrbit'
 import { PLAYER, WORLD } from '../constants'
+import { moveHitsSolid } from '../utils/collision'
 
 const Y_AXIS = new THREE.Vector3(0, 1, 0)
 const MODEL_URL = '/assets/models/character-gamer.glb'
@@ -81,10 +82,12 @@ export default function Explorer() {
     const next = playerState.position.clone()
     // Axis-separated slope/river collision allows sliding along steep banks.
     const nextX = THREE.MathUtils.clamp(next.x + velocity.current.x * dt, -WORLD.halfWidth + 12, WORLD.halfWidth - 12)
-    if (isWalkable(nextX, next.z) && Math.abs(getGroundHeight(nextX, next.z) - next.y) < 0.75) next.x = nextX
+    if (isWalkable(nextX, next.z) && Math.abs(getGroundHeight(nextX, next.z) - next.y) < 0.75
+      && !moveHitsSolid(next.x, next.z, nextX, next.z, next.y, undefined, undefined, getGroundHeight(nextX, next.z))) next.x = nextX
     else velocity.current.x = 0
     const nextZ = THREE.MathUtils.clamp(next.z + velocity.current.z * dt, WORLD.endZ + 12, WORLD.startZ - 12)
-    if (isWalkable(next.x, nextZ) && Math.abs(getGroundHeight(next.x, nextZ) - getGroundHeight(next.x, next.z)) < 0.75) next.z = nextZ
+    if (isWalkable(next.x, nextZ) && Math.abs(getGroundHeight(next.x, nextZ) - getGroundHeight(next.x, next.z)) < 0.75
+      && !moveHitsSolid(next.x, next.z, next.x, nextZ, getGroundHeight(next.x, next.z), undefined, undefined, getGroundHeight(next.x, nextZ))) next.z = nextZ
     else velocity.current.z = 0
     next.y = getGroundHeight(next.x, next.z)
     playerState.position.copy(next)

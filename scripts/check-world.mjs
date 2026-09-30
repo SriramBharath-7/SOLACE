@@ -17,7 +17,7 @@ function loadSource(filename) {
   if (cache.has(path)) return cache.get(path).exports
   const module = { exports: {} }
   cache.set(path, module)
-  const { outputText } = ts.transpileModule(readFileSync(path, 'utf8'), {
+  const { outputText } = ts.transpileModule(readFileSync(path, 'utf8').replaceAll('import.meta.env.DEV', 'false'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX },
     fileName: path,
   })
@@ -29,8 +29,17 @@ function loadSource(filename) {
 
 const { WORLD, PLAYER, LANDMARKS, PATH_CONTROL_POINTS } = loadSource('src/constants.ts')
 const { samplePath, pathCurve, trailLength } = loadSource('src/utils/path.ts')
-const { getTerrainHeight, getGroundHeight, isWalkable, onBridge, riverX, riverLevel,
+const { getTerrainHeight, getSurfaceHeight, getGroundHeight, isWalkable, onBridge, riverX, riverLevel,
   BRIDGE_X, BRIDGE_Y, BRIDGE_Z, BRIDGE_HALF_LENGTH } = loadSource('src/utils/terrain.ts')
+// Detail draping must match the actual rendered triangle, on both sides of its diagonal.
+for (const [x,z] of [[-94,219],[-52,-8],[101,-334]]) {
+  const x0=Math.floor((x+320)/2)*2-320,z0=Math.floor((z+600)/1.875)*1.875-600
+  for(const [u,v] of [[.2,.3],[.8,.7]]) {
+    const a=getTerrainHeight(x0,z0),b=getTerrainHeight(x0+2,z0),c=getTerrainHeight(x0,z0+1.875),d=getTerrainHeight(x0+2,z0+1.875)
+    const expected=u+v<=1?a*(1-u-v)+b*u+c*v:d*(u+v-1)+b*(1-v)+c*(1-u)
+    assert(Math.abs(getSurfaceHeight(x0+2*u,z0+1.875*v)-expected)<1e-9,'Detail surface no longer matches terrain mesh')
+  }
+}
 const failures = []
 const check = (condition, message) => { if (!condition) failures.push(message) }
 const location = (point) => `(${point.x.toFixed(2)}, ${point.z.toFixed(2)})`

@@ -1,3 +1,4 @@
+import SurfaceMaterial from './SurfaceMaterial'
 ﻿import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
@@ -120,9 +121,9 @@ export default function WorldDetails() {
   }), [])
   useEffect(() => () => rocks.dispose(), [rocks])
   return (
-    <group>
+    <group userData={{ solid: true }}>
       <mesh geometry={rocks} castShadow receiveShadow>
-        <meshStandardMaterial vertexColors roughness={1} />
+        <SurfaceMaterial strength={0.27} />
       </mesh>
       {markers.map((p, i) => <group key={i} position={p} rotation={[0, i * 1.7, 0]}>
         <mesh position={[0, 0.69, 0]} castShadow>

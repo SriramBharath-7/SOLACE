@@ -25,8 +25,8 @@ export const CAMERA = {
 }
 export const LIGHTING = {
   sunPosition:[300,230,-420] as [number,number,number],
-  sunColor:'#ffdbab', sunIntensity:2.5, hemiSky:'#c0daed',
-  hemiGround:'#65764b', hemiIntensity:1.5,
+  sunColor:'#ffdbab', sunIntensity:2.8, hemiSky:'#c0daed',
+  hemiGround:'#65764b', hemiIntensity:1.2,
   fogColor:'#b9ccd0', fogNear:220, fogFar:1400,
 }
 

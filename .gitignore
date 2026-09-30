@@ -6,6 +6,7 @@ dist/
 
 # Codex / browser review artifacts
 artifacts/
+tmp/phase2-concepts/
 
 # TypeScript build cache
 *.tsbuildinfo

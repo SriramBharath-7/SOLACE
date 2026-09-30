@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react'
+import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { applyWindSway } from '../utils/wind'
@@ -19,6 +20,7 @@ interface Props {
 
 export default function InstancedModel({ url, placements, wind = false, castShadow = true }: Props) {
   const { scene } = useGLTF(url)
+  const groundCover = /\/(grass-|flower-|bush-)/.test(url)
   const group = useMemo(() => {
     scene.updateMatrixWorld(true)
     const baseY = new THREE.Box3().setFromObject(scene).min.y
@@ -30,7 +32,7 @@ export default function InstancedModel({ url, placements, wind = false, castShad
     // populated once, with no React node or per-frame CPU update per plant.
     const batches = new Map<string, Placement[]>()
     for (const placement of placements) {
-      const cell = `${Math.floor(placement.position[0] / 120)},${Math.floor(placement.position[2] / 120)}`
+      const cell = `${Math.floor(placement.position[0] / (groundCover ? 40 : 120))},${Math.floor(placement.position[2] / (groundCover ? 40 : 120))}`
       const batch = batches.get(cell) ?? []
       batch.push(placement)
       batches.set(cell, batch)
@@ -56,6 +58,11 @@ export default function InstancedModel({ url, placements, wind = false, castShad
       const material = Array.isArray(source.material) ? source.material.map(cloneMaterial) : cloneMaterial(source.material)
       for (const batch of batches.values()) {
         const mesh = new THREE.InstancedMesh(geometry, material, batch.length)
+        // Bark primitives use their own indices; foliage shares the position buffer.
+        const materials = Array.isArray(material) ? material : [material]
+        mesh.userData.solid = /\/tree-(pine|oak)/.test(url)
+          ? materials.some(m => m.name.startsWith('woodBark'))
+          : /\/(rock-large|cart|workbench(?:-anvil)?|barrel|box(?:-open)?|resource-wood|chest|bedroll-frame|tree-log)\.glb$/.test(url)
         mesh.castShadow = castShadow
         mesh.receiveShadow = true
         batch.forEach((placement, i) => {
@@ -74,7 +81,17 @@ export default function InstancedModel({ url, placements, wind = false, castShad
       }
     })
     return result
-  }, [scene, placements, wind, castShadow])
+  }, [scene, placements, wind, castShadow, groundCover])
+
+  // Low ground cover is sub-pixel beyond the nearby landscape; trees retain their full reach.
+  useFrame(({camera}) => {
+    if (!groundCover) return
+    for (const object of group.children) {
+      const mesh = object as THREE.InstancedMesh
+      const bounds = mesh.boundingSphere!
+      mesh.visible = camera.position.distanceToSquared(bounds.center) < (bounds.radius + 95) ** 2
+    }
+  })
 
   useEffect(() => () => {
     const geometries = new Set<THREE.BufferGeometry>()

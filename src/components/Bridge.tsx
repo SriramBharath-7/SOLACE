@@ -4,7 +4,7 @@
 export default function Bridge(){
   const length=BRIDGE_HALF_LENGTH*2
   const posts=Array.from({length:9},(_,i)=>-BRIDGE_HALF_LENGTH+i*length/8)
-  return <group position={[BRIDGE_X,BRIDGE_Y,BRIDGE_Z]}>
+  return <group position={[BRIDGE_X,BRIDGE_Y,BRIDGE_Z]} userData={{ solid: true }}>
     <mesh position={[0,-0.18,0]} castShadow receiveShadow>
       <boxGeometry args={[length,0.36,4.5]}/><meshStandardMaterial color="#8b7855" roughness={1}/>
     </mesh>
